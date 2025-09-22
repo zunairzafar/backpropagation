@@ -99,43 +99,47 @@ def draw_network(W1, W2, A1=None, A2=None, deltas=None, step="Forward Pass", epo
     st.pyplot(plt.gcf())
     plt.close()
 
-# Animation
-placeholder = st.empty()
+# Start button to trigger the animation
+start_button = st.button("Start Animation")
 
-for epoch in range(epochs):
-    epoch_loss = 0
-    for i in range(len(X)):
-        # Forward pass
-        z1 = np.dot(X[i:i+1], W1) + b1
-        a1 = sigmoid(z1)
-        z2 = np.dot(a1, W2) + b2
-        a2 = sigmoid(z2)
+if start_button:
+    # Animation
+    placeholder = st.empty()
 
-        # Compute loss for the epoch
-        loss = compute_loss(y[i:i+1], a2)
-        epoch_loss += loss
+    for epoch in range(epochs):
+        epoch_loss = 0
+        for i in range(len(X)):
+            # Forward pass
+            z1 = np.dot(X[i:i+1], W1) + b1
+            a1 = sigmoid(z1)
+            z2 = np.dot(a1, W2) + b2
+            a2 = sigmoid(z2)
 
-        with placeholder.container():
-            draw_network(W1, W2, A1=a1, A2=a2, step=f"Epoch {epoch+1} - Forward Pass", epoch=epoch+1, loss=loss)
-        time.sleep(0.8)
+            # Compute loss for the epoch
+            loss = compute_loss(y[i:i+1], a2)
+            epoch_loss += loss
 
-        # Backpropagation
-        error = y[i:i+1] - a2
-        delta2 = error * sigmoid_derivative(z2)
-        delta1 = np.dot(delta2, W2.T) * sigmoid_derivative(z1)
+            with placeholder.container():
+                draw_network(W1, W2, A1=a1, A2=a2, step=f"Epoch {epoch+1} - Forward Pass", epoch=epoch+1, loss=loss)
+            time.sleep(0.8)
 
-        with placeholder.container():
-            draw_network(W1, W2, A1=a1, A2=a2, deltas=delta2, step=f"Epoch {epoch+1} - Backpropagation", epoch=epoch+1, loss=loss)
-        time.sleep(0.8)
+            # Backpropagation
+            error = y[i:i+1] - a2
+            delta2 = error * sigmoid_derivative(z2)
+            delta1 = np.dot(delta2, W2.T) * sigmoid_derivative(z1)
 
-        # Update weights
-        W2 += learning_rate * np.dot(a1.T, delta2)
-        b2 += learning_rate * delta2
-        W1 += learning_rate * np.dot(X[i:i+1].T, delta1)
-        b1 += learning_rate * delta1
+            with placeholder.container():
+                draw_network(W1, W2, A1=a1, A2=a2, deltas=delta2, step=f"Epoch {epoch+1} - Backpropagation", epoch=epoch+1, loss=loss)
+            time.sleep(0.8)
 
-    # Average loss for the epoch
-    epoch_loss /= len(X)
-    st.text(f"Epoch {epoch+1} - Average Loss: {epoch_loss:.4f}")
+            # Update weights
+            W2 += learning_rate * np.dot(a1.T, delta2)
+            b2 += learning_rate * delta2
+            W1 += learning_rate * np.dot(X[i:i+1].T, delta1)
+            b1 += learning_rate * delta1
 
-st.success("🎉 Training complete! Final weights and biases updated.")
+        # Average loss for the epoch
+        epoch_loss /= len(X)
+        st.text(f"Epoch {epoch+1} - Average Loss: {epoch_loss:.4f}")
+
+    st.success("🎉 Training complete! Final weights and biases updated.")
