@@ -15,13 +15,11 @@ n_outputs = st.sidebar.slider("Number of output neurons", 1, 3, 1)
 learning_rate = st.sidebar.slider("Learning rate", 0.01, 1.0, 0.1, 0.01)
 epochs = st.sidebar.slider("Epochs", 1, 50, 10)
 
-# Example dataset
+# Example dataset (generalized)
 if n_inputs == 2 and n_outputs == 1:
-    # classic XOR example
     X = np.array([[0,0],[0,1],[1,0],[1,1]])
     y = np.array([[0],[1],[1],[0]])
 else:
-    # generate dummy random data for visualization
     X = np.random.randint(0, 2, size=(4, n_inputs))
     y = np.random.randint(0, 2, size=(4, n_outputs))
 
@@ -36,7 +34,7 @@ def sigmoid(x): return 1/(1+np.exp(-x))
 def sigmoid_derivative(x): return sigmoid(x)*(1-sigmoid(x))
 
 # Graph drawing function
-def draw_network(W1, W2, A1=None, A2=None, deltas=None, step="Forward Pass"):
+def draw_network(W1, W2, A1=None, A2=None, deltas=None, step="Forward Pass", epoch=None):
     G = nx.DiGraph()
     pos = {}
     labels = {}
@@ -82,6 +80,14 @@ def draw_network(W1, W2, A1=None, A2=None, deltas=None, step="Forward Pass"):
     if deltas is not None:
         for idx, val in enumerate(deltas[0]):
             plt.text(2.2, -idx, f"δ={val:.2f}", fontsize=10, color="orange")
+    
+    # Display weights and biases
+    if epoch is not None:
+        plt.text(2.5, -1.5, f"Epoch {epoch}", fontsize=12, color="black")
+        plt.text(2.5, -2, f"Updated W1: {W1}", fontsize=8, color="black")
+        plt.text(2.5, -2.5, f"Updated b1: {b1}", fontsize=8, color="black")
+        plt.text(2.5, -3, f"Updated W2: {W2}", fontsize=8, color="black")
+        plt.text(2.5, -3.5, f"Updated b2: {b2}", fontsize=8, color="black")
 
     plt.title(step)
     st.pyplot(plt.gcf())
@@ -99,7 +105,7 @@ for epoch in range(epochs):
         a2 = sigmoid(z2)
 
         with placeholder.container():
-            draw_network(W1, W2, A1=a1, A2=a2, step=f"Epoch {epoch+1} - Forward Pass")
+            draw_network(W1, W2, A1=a1, A2=a2, step=f"Epoch {epoch+1} - Forward Pass", epoch=epoch+1)
         time.sleep(0.8)
 
         # Backpropagation
@@ -108,7 +114,7 @@ for epoch in range(epochs):
         delta1 = np.dot(delta2, W2.T) * sigmoid_derivative(z1)
 
         with placeholder.container():
-            draw_network(W1, W2, A1=a1, A2=a2, deltas=delta2, step=f"Epoch {epoch+1} - Backpropagation")
+            draw_network(W1, W2, A1=a1, A2=a2, deltas=delta2, step=f"Epoch {epoch+1} - Backpropagation", epoch=epoch+1)
         time.sleep(0.8)
 
         # Update weights
@@ -117,4 +123,4 @@ for epoch in range(epochs):
         W1 += learning_rate * np.dot(X[i:i+1].T, delta1)
         b1 += learning_rate * delta1
 
-st.success("🎉 Training complete! You just visualized forward & backward propagation.")
+st.success("🎉 Training complete! Final weights and biases updated.")
