@@ -15,9 +15,15 @@ n_outputs = st.sidebar.slider("Number of output neurons", 1, 3, 1)
 learning_rate = st.sidebar.slider("Learning rate", 0.01, 1.0, 0.1, 0.01)
 epochs = st.sidebar.slider("Epochs", 1, 50, 10)
 
-# Example dataset (XOR-like)
-X = np.array([[0,0],[0,1],[1,0],[1,1]])
-y = np.array([[0],[1],[1],[0]])
+# Example dataset
+if n_inputs == 2 and n_outputs == 1:
+    # classic XOR example
+    X = np.array([[0,0],[0,1],[1,0],[1,1]])
+    y = np.array([[0],[1],[1],[0]])
+else:
+    # generate dummy random data for visualization
+    X = np.random.randint(0, 2, size=(4, n_inputs))
+    y = np.random.randint(0, 2, size=(4, n_outputs))
 
 # Initialize weights
 np.random.seed(42)
