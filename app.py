@@ -37,7 +37,7 @@ def sigmoid_derivative(x): return sigmoid(x)*(1-sigmoid(x))
 def compute_loss(y, a2):
     return np.mean(0.5 * (y - a2) ** 2)
 
-# Graph drawing function with node highlight
+# Graph drawing function with node highlight and animated effect
 def draw_network(W1, W2, A1=None, A2=None, deltas=None, step="Forward Pass", epoch=None, loss=None, highlight_nodes=None):
     G = nx.DiGraph()
     pos = {}
@@ -82,6 +82,7 @@ def draw_network(W1, W2, A1=None, A2=None, deltas=None, step="Forward Pass", epo
         else:
             node_color.append("lightblue")
 
+    # Draw the network graph
     nx.draw(G, pos, with_labels=True, labels=labels, node_color=node_color, node_size=2000, arrowsize=20)
 
     # Display activation values (A1 and A2) and deltas
