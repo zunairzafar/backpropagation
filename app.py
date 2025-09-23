@@ -37,8 +37,8 @@ def sigmoid_derivative(x): return sigmoid(x)*(1-sigmoid(x))
 def compute_loss(y, a2):
     return np.mean(0.5 * (y - a2) ** 2)
 
-# Graph drawing function
-def draw_network(W1, W2, A1=None, A2=None, deltas=None, step="Forward Pass", epoch=None, loss=None):
+# Graph drawing function with node highlight
+def draw_network(W1, W2, A1=None, A2=None, deltas=None, step="Forward Pass", epoch=None, loss=None, highlight_nodes=None):
     G = nx.DiGraph()
     pos = {}
     labels = {}
@@ -73,8 +73,18 @@ def draw_network(W1, W2, A1=None, A2=None, deltas=None, step="Forward Pass", epo
             G.add_edge(f"H{j+1}", f"O{k+1}")
 
     plt.figure(figsize=(8,5))
-    nx.draw(G, pos, with_labels=True, labels=labels, node_color="lightblue", node_size=2000, arrowsize=20)
-    
+
+    # Highlight active nodes (if any)
+    node_color = []
+    for node in G.nodes:
+        if node in highlight_nodes:
+            node_color.append("orange")  # Highlight color
+        else:
+            node_color.append("lightblue")
+
+    nx.draw(G, pos, with_labels=True, labels=labels, node_color=node_color, node_size=2000, arrowsize=20)
+
+    # Display activation values (A1 and A2) and deltas
     if A1 is not None:
         for idx, val in enumerate(A1[0]):
             plt.text(1, -idx, f"{val:.2f}", fontsize=10, color="red")
@@ -119,8 +129,10 @@ if start_button:
             loss = compute_loss(y[i:i+1], a2)
             epoch_loss += loss
 
+            # Highlight nodes that are activated in the forward pass
+            forward_highlight = [f"I{i+1}" for i in range(n_inputs)] + [f"H{j+1}" for j in range(n_hidden)]
             with placeholder.container():
-                draw_network(W1, W2, A1=a1, A2=a2, step=f"Epoch {epoch+1} - Forward Pass", epoch=epoch+1, loss=loss)
+                draw_network(W1, W2, A1=a1, A2=a2, step=f"Epoch {epoch+1} - Forward Pass", epoch=epoch+1, loss=loss, highlight_nodes=forward_highlight)
             time.sleep(0.8)
 
             # Backpropagation
@@ -128,8 +140,10 @@ if start_button:
             delta2 = error * sigmoid_derivative(z2)
             delta1 = np.dot(delta2, W2.T) * sigmoid_derivative(z1)
 
+            # Highlight nodes that are activated in the backward pass
+            backward_highlight = [f"H{j+1}" for j in range(n_hidden)] + [f"O{k+1}" for k in range(n_outputs)]
             with placeholder.container():
-                draw_network(W1, W2, A1=a1, A2=a2, deltas=delta2, step=f"Epoch {epoch+1} - Backpropagation", epoch=epoch+1, loss=loss)
+                draw_network(W1, W2, A1=a1, A2=a2, deltas=delta2, step=f"Epoch {epoch+1} - Backpropagation", epoch=epoch+1, loss=loss, highlight_nodes=backward_highlight)
             time.sleep(0.8)
 
             # Update weights
